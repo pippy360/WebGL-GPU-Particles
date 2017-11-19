@@ -2,6 +2,8 @@
 // Dependencies
 // ——————————————————————————————————————————————————
 
+let g_byteArray;
+
 let particleSpriteSrc = './textures/particle.png';
 
 let physicsVS = `
@@ -30,28 +32,12 @@ void main() {
     vec3 velocity = dataB.xyz;
     float phase = dataA.w;
     if (phase > 0.0) {
-      //position += velocity * 0.005;
-      //if (length(TARGET - position) < 0.035) phase = 0.0;
-      //else phase += 0.1;
+      position = vec3(gl_FragCoord.x/800.0, gl_FragCoord.y/800.0, 0);
     } else {
       position = vec3(-1);
     }
-    gl_FragColor = vec4(position, phase);
-  } else if (slot == VELOCITY_SLOT) {
-    vec4 dataA = texel(vec2(-1, 0));
-    vec4 dataB = texel(vec2(0, 0));
-    vec3 position = dataA.xyz;
-    vec3 velocity = dataB.xyz;
-    float phase = dataA.w;
-    if (phase > 0.0) {
-      //vec3 delta = normalize(TARGET - position);
-      //velocity += delta * 0.05;
-      //velocity *= 0.991;
-    } else {
-      velocity = vec3(0);
-    }
-    gl_FragColor = vec4(velocity, 1);
-  }
+    gl_FragColor = vec4(position, 1.0);
+  } 
 }
 `;
 let renderVS  = `
@@ -505,9 +491,36 @@ const update = () => {
   debug();
 };
 
+function convertImageToByteArray(img) {
+  // Create an empty canvas element
+  var canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+
+  // Copy the image contents to the canvas
+  var ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0);
+
+  // Get the data-URL formatted image
+  // Firefox supports PNG and JPEG. You could check img.src to
+  // guess the original format, but be aware the using "image/jpg"
+  // will re-encode the image.
+  var imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+  return imageData.data;
+}
+
+function initWrapper(){
+    let g_img = new Image();
+    g_img.src = "./00004.png";
+    g_img.onload = function () {
+        g_byteArray = convertImageToByteArray(g_img);
+        init();
+    }
+}
+
 // ——————————————————————————————————————————————————
 // Bootstrap
 // ——————————————————————————————————————————————————
 
-if (document.readyState === 'complete') init()
-else window.addEventListener('load', init);
+if (document.readyState === 'complete') initWrapper()
+else window.addEventListener('load', initWrapper);

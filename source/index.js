@@ -2,15 +2,112 @@
 // Dependencies
 // ——————————————————————————————————————————————————
 
-import particleSprite from './textures/particle.png';
-import physicsVS from './shaders/physics.vs';
-import physicsFS from './shaders/physics.fs';
-import renderVS from './shaders/render.vs';
-import renderFS from './shaders/render.fs';
-import debugVS from './shaders/debug.vs';
-import debugFS from './shaders/debug.fs';
-import copyVS from './shaders/copy.vs';
-import copyFS from './shaders/copy.fs';
+let particleSpriteSrc = './textures/particle.png';
+
+let physicsVS = `
+attribute vec2 vertexPosition;
+void main() {
+  gl_Position = vec4(vertexPosition, 1, 1);
+}
+`;
+let physicsFS = `
+precision mediump float;
+uniform sampler2D physicsData;
+uniform vec2 bounds;
+const vec3 TARGET = vec3(0, 0, 0.01);
+const int POSITION_SLOT = 0;
+const int VELOCITY_SLOT = 1;
+vec4 texel(vec2 offset) {
+  vec2 coord = (gl_FragCoord.xy + offset) / bounds;
+  return texture2D(physicsData, coord);
+}
+void main() {
+  int slot = int(mod(gl_FragCoord.x, 2.0));
+  if (slot == POSITION_SLOT) {
+    vec4 dataA = texel(vec2(0, 0));
+    vec4 dataB = texel(vec2(1, 0));
+    vec3 position = dataA.xyz;
+    vec3 velocity = dataB.xyz;
+    float phase = dataA.w;
+    if (phase > 0.0) {
+      //position += velocity * 0.005;
+      //if (length(TARGET - position) < 0.035) phase = 0.0;
+      //else phase += 0.1;
+    } else {
+      position = vec3(-1);
+    }
+    gl_FragColor = vec4(position, phase);
+  } else if (slot == VELOCITY_SLOT) {
+    vec4 dataA = texel(vec2(-1, 0));
+    vec4 dataB = texel(vec2(0, 0));
+    vec3 position = dataA.xyz;
+    vec3 velocity = dataB.xyz;
+    float phase = dataA.w;
+    if (phase > 0.0) {
+      //vec3 delta = normalize(TARGET - position);
+      //velocity += delta * 0.05;
+      //velocity *= 0.991;
+    } else {
+      velocity = vec3(0);
+    }
+    gl_FragColor = vec4(velocity, 1);
+  }
+}
+`;
+let renderVS  = `
+attribute vec2 dataLocation;
+uniform sampler2D physicsData;
+void main() {
+  vec4 particle = texture2D(physicsData, dataLocation);
+  float perspective = 1.0 + particle.z * 5.5;
+  float phase = cos(particle.w) * max(0.5, tan(particle.z * 8.05));
+  gl_Position = vec4(particle.xyz, perspective);
+  gl_PointSize = min(64.0, (1.0 / perspective) * (0.75 + phase));
+}
+`;
+let renderFS  = `
+uniform sampler2D particleTexture;
+void main() {
+  gl_FragColor = texture2D(particleTexture, gl_PointCoord);
+}
+`;
+
+let debugVS   = `
+attribute vec2 vertexPosition;
+varying vec2 coord;
+void main() {
+  coord = (vertexPosition + 1.0) / 2.0;
+  gl_Position = vec4(vertexPosition, 1, 1);
+}
+`;
+
+let debugFS   = `
+precision mediump float;
+uniform sampler2D texture;
+varying vec2 coord;
+void main() {
+  vec3 rgb = texture2D(texture, coord).xyz;
+  gl_FragColor = vec4(rgb, 0.5);
+}
+`;
+
+let copyVS   = `
+  attribute vec2 vertexPosition;
+  varying vec2 coord;
+  void main() {
+    coord = (vertexPosition + 1.0) / 2.0;
+    gl_Position = vec4(vertexPosition, 1, 1);
+  }
+`;
+
+let copyFS   = `
+  precision mediump float;
+  uniform sampler2D texture;
+  varying vec2 coord;
+  void main() {
+    gl_FragColor = texture2D(texture, coord);
+  }
+`;
 
 // ——————————————————————————————————————————————————
 // Constants
@@ -68,7 +165,7 @@ const createShader = (source, type) => {
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    throw gl.getShaderInfoLog(shader);
+    console.log('some bug')
   }
   return shader;
 };
@@ -170,7 +267,7 @@ const createPhysicsDataTexture = () => {
 
 const createParticleTexture = () => {
   const image = new Image();
-  image.src = particleSprite;
+  image.src = particleSpriteSrc;
   return createImageTexture(image);
 };
 

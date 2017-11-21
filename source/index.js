@@ -41,6 +41,8 @@ void main() {
 }
 `;
 let renderVS  = `
+
+attribute float imgpos;
 attribute vec2 dataLocation;
 uniform sampler2D physicsData;
 void main() {
@@ -113,6 +115,7 @@ const PARTICLE_EMIT_RATE = 1000;
 let physicsInputTexture;
 let physicsOutputTexture;
 let dataLocationBuffer;
+let imgposBuffer;
 let viewportQuadBuffer;
 let particleTexture;
 let physicsProgram;
@@ -222,10 +225,12 @@ const createPhysicsProgram = () => {
 
 const createRenderProgram = () => {
   const program = createProgram(renderVS, renderFS);
+  program.imgpos = gl.getAttribLocation(program, 'imgpos');
   program.dataLocation = gl.getAttribLocation(program, 'dataLocation');
   program.particleTexture = gl.getUniformLocation(program, 'particleTexture');
   program.physicsData = gl.getUniformLocation(program, 'physicsData');
   gl.enableVertexAttribArray(program.dataLocation);
+  gl.enableVertexAttribArray(program.imgpos);
   return program;
 };
 
@@ -271,6 +276,19 @@ const createDataLocationBuffer = () => {
   gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
   return buffer;
 };
+
+const createImgposBuffer = () => {
+  const data = new Float32Array(PARTICLE_COUNT);
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    data[i] = 1;
+  }
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+  return buffer;
+};
+
 
 const createViewportQuadBuffer = () => {
   const data = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
@@ -368,6 +386,7 @@ const setup = () => {
   physicsInputTexture = createPhysicsDataTexture();
   physicsOutputTexture = createPhysicsDataTexture();
   dataLocationBuffer = createDataLocationBuffer();
+  imgposBuffer = createImgposBuffer();
   viewportQuadBuffer = createViewportQuadBuffer();
   particleTexture = createParticleTexture();
   physicsProgram = createPhysicsProgram();
@@ -396,8 +415,13 @@ const render = () => {
   gl.useProgram(renderProgram);
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+  
   gl.bindBuffer(gl.ARRAY_BUFFER, dataLocationBuffer);
   gl.vertexAttribPointer(renderProgram.dataLocation, 2, gl.FLOAT, gl.FALSE, 0, 0);
+  
+  gl.bindBuffer(gl.ARRAY_BUFFER, imgposBuffer);
+  gl.vertexAttribPointer(renderProgram.imgpos, 1, gl.FLOAT, gl.FALSE, 0, 0);
+  
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, physicsOutputTexture);
   gl.uniform1i(renderProgram.physicsData, 0);

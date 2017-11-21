@@ -99,7 +99,7 @@ let copyFS   = `
 // Constants
 // ——————————————————————————————————————————————————
 
-const PARTICLE_COUNT = Math.pow(1024, 2);
+const PARTICLE_COUNT = Math.pow(8, 2);
 const PARTICLE_COUNT_SQRT = Math.sqrt(PARTICLE_COUNT);
 const PARTICLE_DATA_SLOTS = 2;
 const PARTICLE_DATA_WIDTH = PARTICLE_COUNT_SQRT * PARTICLE_DATA_SLOTS;

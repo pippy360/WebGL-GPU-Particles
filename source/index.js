@@ -486,7 +486,6 @@ const update = () => {
   tick();
   spawn();
   physics();
-  copy();
   render();
   debug();
 };

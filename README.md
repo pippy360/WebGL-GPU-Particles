@@ -1,6 +1,6 @@
 ## 1,048,576 Particles
 
-[Click here to see the demo](http://soulwire.github.io/WebGL-GPU-Particles/)
+[Click here to see the demo](http://pippy360.github.io/WebGL-GPU-Particles/source)
 
 An experiment showing 1 million+ particles being moved around on the GPU via WebGL. All data is uploaded once - velocities are computed and integrated entirely on the GPU and state is preserved via a Texture and Framebuffer. You can also control this with LEAP motion if you have one :)
 

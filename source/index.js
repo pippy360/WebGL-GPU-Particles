@@ -392,38 +392,6 @@ const physics = () => {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 };
 
-const copy = () => {
-  gl.useProgram(copyProgram);
-  gl.viewport(0, 0, PARTICLE_DATA_WIDTH, PARTICLE_DATA_HEIGHT);
-  gl.bindBuffer(gl.ARRAY_BUFFER, viewportQuadBuffer);
-  gl.vertexAttribPointer(copyProgram.vertexPosition, 2, gl.FLOAT, gl.FALSE, 0, 0);
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, physicsOutputTexture);
-  gl.uniform1i(copyProgram.physicsData, 0);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, physicsInputTexture, 0);
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-};
-
-const debug = () => {
-  const x = 16 * scale;
-  const y = 16 * scale;
-  const w = 360 * scale;
-  const h = 180 * scale;
-  gl.useProgram(debugProgram);
-  gl.viewport(x, y, w, h);
-  gl.bindBuffer(gl.ARRAY_BUFFER, viewportQuadBuffer);
-  gl.vertexAttribPointer(physicsProgram.vertexPosition, 2, gl.FLOAT, gl.FALSE, 0, 0);
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, physicsOutputTexture);
-  gl.uniform1i(debugProgram.texture, 0);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  gl.disable(gl.BLEND);
-};
-
 const render = () => {
   gl.useProgram(renderProgram);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -487,7 +455,6 @@ const update = () => {
   spawn();
   physics();
   render();
-  debug();
 };
 
 function convertImageToByteArray(img) {

@@ -46,7 +46,7 @@ attribute vec3 dataLocation;
 uniform sampler2D physicsData;
 void main() {
   float perspective = 1.0 + dataLocation.z * 5.5;
-  float phase = cos(1) * max(0.5, tan(dataLocation.z * 8.05));
+  float phase = cos(1.0) * max(0.5, tan(dataLocation.z * 8.05));
   gl_Position = vec4(dataLocation.xyz, perspective);
   gl_PointSize = min(64.0, (1.0 / perspective) * (0.75 + phase));
 }

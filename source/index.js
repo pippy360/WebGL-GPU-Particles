@@ -3,6 +3,7 @@
 // ——————————————————————————————————————————————————
 
 let g_byteArray;
+let g_img;
 
 let particleSpriteSrc = './textures/particle.png';
 
@@ -41,21 +42,36 @@ void main() {
 }
 `;
 let renderVS  = `
-
+varying vec4 vPos;
 attribute vec3 dataLocation;
 uniform sampler2D physicsData;
 void main() {
-  float zVal = (dataLocation.z/255.0) * -1.0;
-  float perspective = 1.0 + zVal * 5.5;
+  float zVal = (dataLocation.z/255.0) * .2-.12;
+  float perspective = 1.0 + zVal * 1.0;
   float phase = cos(.5) * max(0.5, tan(zVal * 8.05));
-  gl_Position = vec4(dataLocation.x-0.5, dataLocation.y-0.5, zVal, 1.0);
-  gl_PointSize = 30.0;
+  gl_Position = vec4(dataLocation.x-0.5, -(dataLocation.y-0.5), zVal, perspective);
+  vPos = gl_Position;
+  
+  gl_PointSize = 5.0;
 }
 `;
 let renderFS  = `
+precision highp float;
+varying vec4 vPos;
 uniform sampler2D particleTexture;
+
+vec3 hsv2rgb(vec3 c)
+{
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
 void main() {
-  gl_FragColor = texture2D(particleTexture, gl_PointCoord);
+
+  vec3 val = vec3((vPos.z*4.0), 0.9, 0.1);
+  vec3 col = hsv2rgb(val);
+  gl_FragColor = vec4(col,1);  // draw red
 }
 `;
 
@@ -268,8 +284,8 @@ const createDataLocationBuffer = () => {
     v = u + 1;
     z = u + 2;
     
-    data[u] = Math.floor(i % 74)/74.0;
-    data[v] = Math.floor(i / 74.0)/55.0;
+    data[u] = Math.floor(i % g_img.width)/g_img.width;
+    data[v] = Math.floor(i / g_img.width)/g_img.height;
     data[z] = g_byteArray[i*4];
   }
   
@@ -499,8 +515,8 @@ function convertImageToByteArray(img) {
 }
 
 function initWrapper(){
-    let g_img = new Image();
-    g_img.src = "./00004.png";
+    g_img = new Image();
+    g_img.src = "./00011.png";
     g_img.onload = function () {
         g_byteArray = convertImageToByteArray(g_img);
         init();

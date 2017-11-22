@@ -271,7 +271,7 @@ const createDataLocationBuffer = () => {
     
     data[u] = step * Math.floor(i % 74);
     data[v] = step * Math.floor(i / 74);
-    data[z] = g_byteArray[i];
+    data[z] = 0;
   }
   
   const buffer = gl.createBuffer();
@@ -421,9 +421,6 @@ const render = () => {
   
   gl.bindBuffer(gl.ARRAY_BUFFER, dataLocationBuffer);
   gl.vertexAttribPointer(renderProgram.dataLocation, 3, gl.FLOAT, gl.FALSE, 0, 0);
-  
-  gl.bindBuffer(gl.ARRAY_BUFFER, imgposBuffer);
-  gl.vertexAttribPointer(renderProgram.imgpos, 1, gl.FLOAT, gl.FALSE, 0, 0);
   
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, physicsOutputTexture);

@@ -430,7 +430,7 @@ const render = () => {
   gl.uniform1i(renderProgram.particleTexture, 1);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-  gl.drawArrays(gl.POINTS, 0, PARTICLE_COUNT);
+  gl.drawArrays(gl.POINTS, 0, g_byteArray.length);
   gl.disable(gl.BLEND);
 };
 

@@ -42,14 +42,12 @@ void main() {
 `;
 let renderVS  = `
 
-attribute float imgpos;
-attribute vec2 dataLocation;
+attribute vec3 dataLocation;
 uniform sampler2D physicsData;
 void main() {
-  vec4 particle = texture2D(physicsData, dataLocation);
-  float perspective = 1.0 + particle.z * 5.5;
-  float phase = cos(particle.w) * max(0.5, tan(particle.z * 8.05));
-  gl_Position = vec4(particle.xyz, perspective);
+  float perspective = 1.0 + dataLocation.z * 5.5;
+  float phase = cos(1) * max(0.5, tan(dataLocation.z * 8.05));
+  gl_Position = vec4(dataLocation.xyz, perspective);
   gl_PointSize = min(64.0, (1.0 / perspective) * (0.75 + phase));
 }
 `;
@@ -225,12 +223,11 @@ const createPhysicsProgram = () => {
 
 const createRenderProgram = () => {
   const program = createProgram(renderVS, renderFS);
-  program.imgpos = gl.getAttribLocation(program, 'imgpos');
   program.dataLocation = gl.getAttribLocation(program, 'dataLocation');
   program.particleTexture = gl.getUniformLocation(program, 'particleTexture');
   program.physicsData = gl.getUniformLocation(program, 'physicsData');
   gl.enableVertexAttribArray(program.dataLocation);
-  gl.enableVertexAttribArray(program.imgpos);
+  
   return program;
 };
 
@@ -263,14 +260,19 @@ const createParticleTexture = () => {
 };
 
 const createDataLocationBuffer = () => {
-  const data = new Float32Array(PARTICLE_COUNT * 2);
+  const data = new Float32Array(g_byteArray.length * 3);
   const step = 1 / PARTICLE_COUNT_SQRT;
-  for (let u, v, i = 0; i < PARTICLE_COUNT; i++) {
-    u = i * 2;
+  const pixelCount = g_byteArray.length;
+  for (let u, v, z, i = 0; i < pixelCount; i++) {
+    u = i * 3;
     v = u + 1;
-    data[u] = step * Math.floor(i % PARTICLE_COUNT_SQRT);
-    data[v] = step * Math.floor(i / PARTICLE_COUNT_SQRT);
+    z = u + 2;
+    
+    data[u] = step * Math.floor(i % 74);
+    data[v] = step * Math.floor(i / 74);
+    data[z] = g_byteArray[i];
   }
+  
   const buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);

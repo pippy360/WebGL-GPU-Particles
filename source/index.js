@@ -48,7 +48,7 @@ void main() {
   float zVal = 0.0;
   float perspective = 1.0 + zVal * 5.5;
   float phase = cos(.5) * max(0.5, tan(zVal * 8.05));
-  gl_Position = vec4(0.1, 0.1, zVal, 1);
+  gl_Position = vec4(dataLocation.x, dataLocation.z, zVal, 1);
   gl_PointSize = 30.0;
 }
 `;
@@ -420,7 +420,7 @@ const render = () => {
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   
   gl.bindBuffer(gl.ARRAY_BUFFER, dataLocationBuffer);
-  gl.vertexAttribPointer(renderProgram.dataLocation, 2, gl.FLOAT, gl.FALSE, 0, 0);
+  gl.vertexAttribPointer(renderProgram.dataLocation, 3, gl.FLOAT, gl.FALSE, 0, 0);
   
   gl.bindBuffer(gl.ARRAY_BUFFER, imgposBuffer);
   gl.vertexAttribPointer(renderProgram.imgpos, 1, gl.FLOAT, gl.FALSE, 0, 0);

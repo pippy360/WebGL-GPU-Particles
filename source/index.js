@@ -48,7 +48,7 @@ void main() {
   float zVal = dataLocation.z;
   float perspective = 1.0 + zVal * 5.5;
   float phase = cos(.5) * max(0.5, tan(zVal * 8.05));
-  gl_Position = vec4(dataLocation.x-0.5, dataLocation.y-0.9, zVal, perspective);
+  gl_Position = vec4(dataLocation.x-0.5, dataLocation.y-0.5, zVal, perspective);
   gl_PointSize = 30.0;
 }
 `;
@@ -261,8 +261,8 @@ const createParticleTexture = () => {
 };
 
 const createDataLocationBuffer = () => {
-  const data = new Float32Array(g_byteArray.length * 3);
-  const pixelCount = g_byteArray.length;
+  const data = new Float32Array((g_byteArray.length/4)*3); // * 3 / 3
+  const pixelCount = g_byteArray.length/4;
   for (let u, v, z, i = 0; i < pixelCount; i++) {
     u = i * 3;
     v = u + 1;
@@ -270,7 +270,7 @@ const createDataLocationBuffer = () => {
     
     data[u] = Math.floor(i % 74)/74.0;
     data[v] = Math.floor(i / 74.0)/55.0;
-    data[z] = 0;
+    data[z] = g_byteArray[i*4];
   }
   
   const buffer = gl.createBuffer();
@@ -429,7 +429,7 @@ const render = () => {
   gl.uniform1i(renderProgram.particleTexture, 1);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-  gl.drawArrays(gl.POINTS, 0, g_byteArray.length);
+  gl.drawArrays(gl.POINTS, 0, g_byteArray.length/4);
   gl.disable(gl.BLEND);
 };
 

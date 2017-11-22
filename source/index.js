@@ -263,14 +263,13 @@ const createParticleTexture = () => {
 const createDataLocationBuffer = () => {
   const data = new Float32Array(g_byteArray.length * 3);
   const pixelCount = g_byteArray.length;
-  const step = 1 / pixelCount;
   for (let u, v, z, i = 0; i < pixelCount; i++) {
     u = i * 3;
     v = u + 1;
     z = u + 2;
     
-    data[u] = step * Math.floor(i % 74);
-    data[v] = step * Math.floor(i / 74);
+    data[u] = Math.floor(i % 74)/74.0;
+    data[v] = Math.floor(i / 74.0)/55.0;
     data[z] = 0;
   }
   

@@ -48,7 +48,7 @@ void main() {
   float zVal = dataLocation.z;
   float perspective = 1.0 + zVal * 5.5;
   float phase = cos(.5) * max(0.5, tan(zVal * 8.05));
-  gl_Position = vec4(dataLocation.x-0.5, dataLocation.y-0.5, zVal, perspective);
+  gl_Position = vec4(dataLocation.x-0.5, dataLocation.y-0.9, zVal, perspective);
   gl_PointSize = 30.0;
 }
 `;
